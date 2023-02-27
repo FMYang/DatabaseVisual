@@ -47,6 +47,7 @@
 
 - (void)showTables {
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+    nav.modalPresentationStyle = UIModalPresentationFullScreen;
     [[self currentViewController] presentViewController:nav animated:true completion:nil];
 //    self.showWindow.hidden = false;
 //    self.showWindow.transform = CGAffineTransformMakeTranslation(0, _showWindow.bounds.size.height);
