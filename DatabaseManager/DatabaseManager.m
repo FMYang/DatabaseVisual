@@ -12,7 +12,7 @@
 
 @interface DatabaseManager () <DatabaseListViewControllerDelegate>
 
-@property (nonatomic, strong) UIWindow *showWindow;
+//@property (nonatomic, strong) UIWindow *showWindow;
 @property (nonatomic, strong) DatabaseListViewController *viewController;
 
 @end
@@ -28,14 +28,14 @@
     return sharedInstance;
 }
 
-- (UIWindow *)showWindow {
-    if (_showWindow == nil) {
-        _showWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
-        _showWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
-        _showWindow.windowLevel = UIWindowLevelStatusBar + 100;
-    }
-    return _showWindow;
-}
+//- (UIWindow *)showWindow {
+//    if (_showWindow == nil) {
+//        _showWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+//        _showWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+//        _showWindow.windowLevel = UIWindowLevelStatusBar + 100;
+//    }
+//    return _showWindow;
+//}
 
 - (DatabaseListViewController *)viewController {
     if (_viewController == nil) {
@@ -46,26 +46,44 @@
 }
 
 - (void)showTables {
-    self.showWindow.hidden = false;
-    self.showWindow.transform = CGAffineTransformMakeTranslation(0, _showWindow.bounds.size.height);
-    [UIView animateWithDuration:0.3 animations:^{
-        self.showWindow.transform = CGAffineTransformIdentity;
-    }];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+    [[self currentViewController] presentViewController:nav animated:true completion:nil];
+//    self.showWindow.hidden = false;
+//    self.showWindow.transform = CGAffineTransformMakeTranslation(0, _showWindow.bounds.size.height);
+//    [UIView animateWithDuration:0.3 animations:^{
+//        self.showWindow.transform = CGAffineTransformIdentity;
+//    }];
 }
 
 - (void)hideTables {
-    [UIView animateWithDuration:0.3 animations:^{
-        self.showWindow.transform = CGAffineTransformMakeTranslation(0, self.showWindow.bounds.size.height);
-    }completion:^(BOOL finished) {
-        self.showWindow.hidden = true;
-        self.showWindow = nil;
-    }];
+    [self.viewController dismissViewControllerAnimated:true completion:nil];
+//    [UIView animateWithDuration:0.3 animations:^{
+//        self.showWindow.transform = CGAffineTransformMakeTranslation(0, self.showWindow.bounds.size.height);
+//    }completion:^(BOOL finished) {
+//        self.showWindow.hidden = true;
+//        self.showWindow = nil;
+//    }];
 }
 
 #pragma mark -- DatabaseListViewControllerDelegate
 
 - (void)databaseListViewControllerDidFinish {
     [self hideTables];
+}
+
+- (UIViewController *)currentViewController {
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIViewController *vc = keyWindow.rootViewController;
+    while (vc.presentedViewController) {
+        vc = vc.presentedViewController;
+
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            vc = [(UINavigationController *)vc visibleViewController];
+        } else if ([vc isKindOfClass:[UITabBarController class]]) {
+            vc = [(UITabBarController *)vc selectedViewController];
+        }
+    }
+    return vc;
 }
 
 @end
