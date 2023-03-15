@@ -12,7 +12,7 @@
 
 @interface DatabaseManager () <DatabaseListViewControllerDelegate>
 
-//@property (nonatomic, strong) UIWindow *showWindow;
+@property (nonatomic, strong) UIWindow *showWindow;
 @property (nonatomic, strong) DatabaseListViewController *viewController;
 
 @end
@@ -28,14 +28,15 @@
     return sharedInstance;
 }
 
-//- (UIWindow *)showWindow {
-//    if (_showWindow == nil) {
-//        _showWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
-//        _showWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
-//        _showWindow.windowLevel = UIWindowLevelStatusBar + 100;
-//    }
-//    return _showWindow;
-//}
+- (UIWindow *)showWindow {
+    if (_showWindow == nil) {
+        _showWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
+        _showWindow.backgroundColor = [UIColor redColor];
+        _showWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:self.viewController];
+        _showWindow.windowLevel = UIWindowLevelStatusBar;
+    }
+    return _showWindow;
+}
 
 - (DatabaseListViewController *)viewController {
     if (_viewController == nil) {
@@ -45,25 +46,27 @@
     return _viewController;
 }
 
+- (void)iOS13ShowCustomWindowWithWindow:(UIWindow *)window {
+    if (@available(iOS 13.0, *)) {
+        NSArray *array = [[[UIApplication sharedApplication] connectedScenes] allObjects];
+        if (!window.windowScene) {
+            for (UIWindowScene *windowScene in array) {
+                if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                    window.windowScene = windowScene;
+                    return;
+                }
+            }
+        }
+    }
+}
+
 - (void)showTables {
-    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:self.viewController];
-    nav.modalPresentationStyle = UIModalPresentationFullScreen;
-    [[self currentViewController] presentViewController:nav animated:true completion:nil];
-//    self.showWindow.hidden = false;
-//    self.showWindow.transform = CGAffineTransformMakeTranslation(0, _showWindow.bounds.size.height);
-//    [UIView animateWithDuration:0.3 animations:^{
-//        self.showWindow.transform = CGAffineTransformIdentity;
-//    }];
+    [self iOS13ShowCustomWindowWithWindow:self.showWindow];
+    self.showWindow.hidden = false;
 }
 
 - (void)hideTables {
-    [self.viewController dismissViewControllerAnimated:true completion:nil];
-//    [UIView animateWithDuration:0.3 animations:^{
-//        self.showWindow.transform = CGAffineTransformMakeTranslation(0, self.showWindow.bounds.size.height);
-//    }completion:^(BOOL finished) {
-//        self.showWindow.hidden = true;
-//        self.showWindow = nil;
-//    }];
+    self.showWindow.hidden = true;
 }
 
 #pragma mark -- DatabaseListViewControllerDelegate
